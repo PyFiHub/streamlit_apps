@@ -2,6 +2,8 @@
 
 This app displays live prices of cryptocurrencies using the CoinGecko API. It is a Streamlit project created by PyFiHub.
 
+### [Demo on Streamlit Cloud](https://pyfihub-streamlit-apps-crypto-live-prices-npafid.streamlit.app)
+
 ## Information
 
 - Date: 2023-05-09
@@ -37,3 +39,5 @@ streamlit run app.py
 - The table includes sparklines of the 7-day price history for each cryptocurrency, with the line color indicating whether the 7-day percentage change is positive (green), negative (red), or neutral (gray).
 
 - The app automatically refreshes every 5 minutes to display the latest data from the CoinGecko API.
+
+
