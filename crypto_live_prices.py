@@ -10,7 +10,7 @@ import requests
 import pandas as pd
 import streamlit as st
 from datetime import datetime, timedelta
-# from streamlit_autorefresh import st_autorefresh
+from streamlit_autorefresh import st_autorefresh
 
 import base64
 import io
@@ -126,7 +126,7 @@ data = fetch_and_cache_data(COINGECKO_API_URL, PARAMS)
 
 if data:
     df, latest_timestamp = process_data(data)
-    # st_autorefresh(interval=60*1000*5, key="autorefresh")
+    st_autorefresh(interval=60*1000*5, key="autorefresh")
     # Header
     header = f"""
         <div style="display: flex; justify-content: space-between; align-items: center;">
