@@ -1,4 +1,4 @@
-## Cryptocurrencies Live Prices Streamlit App
+## Cryptocurrencies Live Prices
 
 This app displays live prices of cryptocurrencies using the CoinGecko API.
 ### [Live Prices Demo on Streamlit Cloud](https://pyfihub-streamlit-apps-crypto-live-prices-npafid.streamlit.app)

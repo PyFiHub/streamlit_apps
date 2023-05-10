@@ -27,7 +27,6 @@ def get_schema(table_name):
     data, _ = get_data_with_columns(query)
     return data
 
-
 # MAIN
 
 # NUMBER OF TABLE IN DATABASE
@@ -43,6 +42,7 @@ default_asset = 'BTCUSDT'
 default_asset_index = assets.index(default_asset) if default_asset in assets else 0
 
 # STREAMLIT MAIN
+st.set_page_config(page_title="SQL Playground", layout="centered")
 st.title('SQL Playground')
 
 # ASSET SELECT BOX
@@ -50,33 +50,83 @@ selected_asset = st.selectbox("Select an asset", assets, index=default_asset_ind
 selected_table = f"pair_{selected_asset}"
 
 # QUERY TEMPLATE
-query_template = f'''
-SELECT close_time, close, AVG(close) OVER (ORDER BY close_time ROWS BETWEEN 199 PRECEDING AND CURRENT ROW) AS SMA_200
+sma_200 = f'''
+SELECT close_time, close, volume, num_trades, 
+AVG(close) OVER (ORDER BY close_time ROWS BETWEEN 199 PRECEDING AND CURRENT ROW) AS SMA_200
 FROM {selected_table}
 ORDER BY close_time DESC
 LIMIT 200;
 '''
+rsi = f'''
+WITH changes AS (
+    SELECT
+        close_time,
+        close,
+        close - LAG(close) OVER (ORDER BY close_time) AS price_change
+    FROM {selected_table}
+)
+SELECT
+    close_time,
+    close,
+    100 - (100 / (1 + (
+        SUM(CASE WHEN price_change > 0 THEN price_change ELSE 0 END) OVER (ORDER BY close_time ROWS BETWEEN 13 PRECEDING AND CURRENT ROW) /
+        NULLIF(SUM(CASE WHEN price_change < 0 THEN ABS(price_change) ELSE 0 END) OVER (ORDER BY close_time ROWS BETWEEN 13 PRECEDING AND CURRENT ROW), 0)
+    ))) AS rsi
+FROM changes
+ORDER BY close_time DESC
+LIMIT 200;
+'''
+
+macd = f'''
+WITH moving_averages AS (
+    SELECT
+        close_time,
+        close,
+        AVG(close) OVER (ORDER BY close_time ROWS BETWEEN 11 PRECEDING AND CURRENT ROW) AS short_term_avg,
+        AVG(close) OVER (ORDER BY close_time ROWS BETWEEN 25 PRECEDING AND CURRENT ROW) AS long_term_avg
+    FROM {selected_table}
+)
+SELECT
+    close_time,
+    close,
+    (short_term_avg - long_term_avg) AS macd,
+    AVG(short_term_avg - long_term_avg) OVER (ORDER BY close_time ROWS BETWEEN 8 PRECEDING AND CURRENT ROW) AS signal_line
+FROM moving_averages
+ORDER BY close_time DESC
+LIMIT 200;
+'''
+
 query_templates = {
-    "Test Template": f"{query_template}",
+    "SMA 200": f"{sma_200}",
+    "RSI": f"{rsi}",
+    "MACD": f"{macd}",
 }
+
+
 selected_template = st.selectbox("Select a Query Template", list(query_templates.keys()))
 
-#ST_ACE ENCHANTED EDITOR
-sql_query = st_ace(value=query_templates[selected_template], language="sql", theme="xcode", font_size=14, height=200)
+# ST_ACE ENCHANTED EDITOR
+sql_query = st_ace(value=query_templates[selected_template], language="sql", theme="xcode", font_size=14, height=350)
 
-#CALL GET DATA
+# CALL GET DATA
+# Session State required to keep data in store and persist state - https://docs.streamlit.io/library/api-reference/session-state
 if st.button('Submit'):
-    data, column_names = get_data_with_columns(sql_query)
-    df = pd.DataFrame(data, columns=column_names)
+    st.session_state.data, st.session_state.column_names = get_data_with_columns(sql_query)
+
+if 'data' in st.session_state and 'column_names' in st.session_state:
+    df = pd.DataFrame(st.session_state.data, columns=st.session_state.column_names)
     st.write(f"Number of rows: {len(df)}")
     st.dataframe(df)
+    # Add the Download CSV button
+    csv = df.to_csv(index=False)
+    st.download_button(label="Download CSV (UTF-8 encoding)", data=csv, file_name=f"{selected_asset}_price_data.csv", mime="text/csv")
 
 # SIDEBAR SETTINGS
 st.sidebar.title(f'Binance Historical Trading Data - SQL Practice')
 st.sidebar.markdown(f'Number of Tables :```{num_tables}```')
 
-st.sidebar.markdown("### Table Schema")
-st.sidebar.dataframe(pd.DataFrame(get_schema(selected_table), columns=["ID", "Column Name", "Data Type", "Not Null", "Default Value", "Primary Key"]))
+st.sidebar.markdown(f'### Table Schema :```{selected_table}```')
+st.sidebar.dataframe(pd.DataFrame(get_schema(selected_table), columns=["ID", "Column Name", "Data Type", "Not Null", "Default Value", "Primary Key"]).set_index("Column Name"))
 
 # SIDEBAR EXPANDERS
 with st.sidebar.expander("Other Streamlit Demos"):
