@@ -11,3 +11,8 @@ SQL integrated in Streamlit for Training on Cryptocurrencies Historical Data.
 [streamlit_sql_db.py](https://github.com/PyFiHub/streamlit_apps/blob/main/streamlit_sql_db.py)
 
 
+## PyFiHub - Steamlit on EC2 AWS - Cryptocurrencies Historical Dashboard 
+
+Streamlit Dashboard running on EC2 to explore historical price data for various cryptocurrencies listed on Binance Global Exchange.
+### [PyFiHub](https://pyfihub.com/Binance_Historical_Data)
+[binance_hist_db.py](https://github.com/PyFiHub/db_Training_Binance_Historical_Data/blob/main/binance_hist_db.py)
