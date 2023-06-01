@@ -72,7 +72,7 @@ def fetch_data(url, params):
         return None
 
 
-st.set_page_config(page_title='Cryptocurrencies Live Prices - PyFiHub', layout='wide')
+st.set_page_config(page_title='Cryptocurrencies Live Prices (USD)- PyFiHub', layout='wide')
 @st.cache_data(ttl=float(timedelta(minutes=5).total_seconds()))
 def fetch_and_cache_data(url, params):
     # Fetch data from the API and cache it for 5 minute.
@@ -99,15 +99,15 @@ def process_data(data):
         'price_change_percentage_30d_in_currency', 'price_change_percentage_1y_in_currency',
         'sparkline_in_7d'
     ]
-    column_names = ['Image', 'Rank', 'Symbol', 'Name', 'Current Price USD', 'Market Cap USD', '24h Volume USD', '1h %', '24h %', '7d %', '30d %', '1y %', 'Sparkline 7 Days']
+    column_names = ['Image', 'Rank', 'Symbol', 'Name', 'Current Price', 'Market Cap', '24h Volume', '1h %', '24h %', '7d %', '30d %', '1y %', 'Sparkline 7 Days']
 
     df = df[selected_columns]
     df.columns = column_names
 
     df['Image'] = df['Image'].apply(show_image_from_url)
-    df['Current Price USD'] = df['Current Price USD'].apply(lambda x: '{:,.12f}'.format(x).rstrip('0').rstrip('.'))
-    df['Market Cap USD'] = df['Market Cap USD'].apply(lambda x: '{:,.0f}'.format(x))
-    df['24h Volume USD'] = df['24h Volume USD'].apply(lambda x: '{:,.0f}'.format(x))
+    df['Current Price'] = df['Current Price'].apply(lambda x: '{:,.12f}'.format(x).rstrip('0').rstrip('.'))
+    df['Market Cap'] = df['Market Cap'].apply(lambda x: '{:,.0f}'.format(x))
+    df['24h Volume'] = df['24h Volume'].apply(lambda x: '{:,.0f}'.format(x))
     df['Symbol'] = df['Symbol'].str.upper()
     
     percentage_columns = ['1h %', '24h %', '7d %', '30d %', '1y %']
@@ -154,13 +154,13 @@ if data:
     <style>
         table {
             border-collapse: collapse;
-            /* width: 100%; */
-            font-size: 18px; /* Adjust the font size here */
+            width: 100%; */
+            font-size: 15px; /* Adjust the font size here */
             font-family: 'Roboto', sans-serif;  /* Adjust the font family here */
         }
         th, td {
             border: 1px solid #555;
-            padding: 3px;
+            padding: 0px;
             text-align: left;
             color: #d5cbc6;
         }
@@ -184,6 +184,10 @@ if data:
         td:nth-child(6), td:nth-child(7) {
             font-style: italic;
             text-align: right;
+        }
+        th:nth-child(13), th:nth-child(13),
+        td:nth-child(13), td:nth-child(13) {
+            text-align: center;
         }
     </style>
     """, unsafe_allow_html=True)
