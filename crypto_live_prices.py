@@ -1,8 +1,8 @@
 """
 Cryptocurrency Live Prices Streamlit App
 Description: Displays live prices of cryptocurrencies using the CoinGecko API - Streamlit Project.
-Date: 2023-05-09
-Version: 1.0
+Date: 2023-06-07
+Version: 1.1
 Author: PyFiHub
 """
 
@@ -30,7 +30,7 @@ PARAMS = {
 }
 
 def plot_sparkline(data, percentage_change_7d):
-    fig, ax = plt.subplots(figsize=(4, 1), dpi=64)
+    fig, ax = plt.subplots(figsize=(2.2, 0.5), dpi=64)
     percentage_change_7d = float(percentage_change_7d)
     # Determine line color based on 7 days percentage change
     if percentage_change_7d > 0:
@@ -81,7 +81,6 @@ def fetch_and_cache_data(url, params):
 
 def show_image_from_url(image_url):
     #Function to return HTML code for displaying an image from a URL
-
     return f'<img src="{image_url}" width="32" height="32" />'
 
 def process_data(data):
@@ -113,11 +112,11 @@ def process_data(data):
     percentage_columns = ['1h %', '24h %', '7d %', '30d %', '1y %']
     df[percentage_columns] = df[percentage_columns].applymap(lambda x: '{:,.2f}'.format(x))
 
-    df['Sparkline 7 Days'] = df.apply(lambda row: f'<img src="data:image/png;base64,{plot_sparkline(row["Sparkline 7 Days"]["price"], row["7d %"])}" />', axis=1)
+    df['Sparkline 7 Days'] = df.apply(lambda row: f'<img src="data:image/png;base64,{plot_sparkline(row["Sparkline 7 Days"]["price"], row["7d %"])}" width="100%" height="auto" />', axis=1)
 
     # Apply conditional formatting to the percentage change columns
     for col in percentage_columns:
-        df[col] = df[col].apply(lambda x: f'<span style="color: {"green" if float(x) > 0 else "red" if float(x) < 0 else "grey"}; padding: 2px;">{x}</span>')
+       df[col] = df[col].apply(lambda x: f'<span style="font-weight: bold; color: {"green" if float(x.replace(",", "")) > 0 else "red" if float(x.replace(",", "")) < 0 else "grey"}; padding: 2px;">{x}</span>')
 
     return df, latest_timestamp
 
@@ -151,46 +150,46 @@ if data:
 
     #Table
     st.markdown("""
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%; */
-            font-size: 15px; /* Adjust the font size here */
-            font-family: 'Roboto', sans-serif;  /* Adjust the font family here */
-        }
-        th, td {
-            border: 1px solid #555;
-            padding: 0px;
-            text-align: left;
-            color: #d5cbc6;
-        }
-        th {
-            background-color: #2a3439;
-        }
-        tr:nth-child(even) {
-            background-color: #28353b;
-        }
-        tr:nth-child(odd) {
-            background-color: #2b3438;
-        }
-        tr:hover {
-            background-color: #323232;
-        }
-        th:nth-child(4), th:nth-child(5),
-        td:nth-child(4), td:nth-child(5) {
-            font-weight: bold;  /* Make the columns "Symbol" and "Name" bold */
-        }
-        th:nth-child(6), th:nth-child(7),
-        td:nth-child(6), td:nth-child(7) {
-            font-style: italic;
-            text-align: right;
-        }
-        th:nth-child(13), th:nth-child(13),
-        td:nth-child(13), td:nth-child(13) {
-            text-align: center;
-        }
-    </style>
-    """, unsafe_allow_html=True)
+        <style>
+            table {
+                border-collapse: collapse;
+                width: 100%; 
+                font-size: 15px; 
+                font-family: 'Roboto', sans-serif;  
+            }
+            th, td {
+                border: 1px solid #555;
+                padding: 0px 0px;
+                text-align: left;
+                color: #d5cbc6;
+            }
+            th {
+                background-color: #2a3439;
+            }
+            tr:nth-child(even) {
+                background-color: #28353b;
+            }
+            tr:nth-child(odd) {
+                background-color: #2b3438;
+            }
+            tr:hover {
+                background-color: #323232;
+            }
+            th:nth-child(4), th:nth-child(5),
+            td:nth-child(4), td:nth-child(5) {
+                font-weight: bold;
+            }
+            th:nth-child(6), th:nth-child(7),
+            td:nth-child(6), td:nth-child(7) {
+                font-style: italic;
+                text-align: right;
+            }
+            th:nth-child(13), th:nth-child(13),
+            td:nth-child(13), td:nth-child(13) {
+                text-align: center;
+            }
+        </style>
+        """, unsafe_allow_html=True)
 
     # Display table with images
     st.write(df.to_html(escape=False, index=False), unsafe_allow_html=True)
